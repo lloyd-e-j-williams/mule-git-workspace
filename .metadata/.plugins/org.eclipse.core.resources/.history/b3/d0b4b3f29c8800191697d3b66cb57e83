@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="66db698a-4d29-4108-a4e7-6e60e91edea8" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Mule1379" database="largeData" />
+	</db:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f6951978-f714-4d75-889d-660e46edd883" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="71750547-7343-48b9-97a6-f5755804bd26" >
+		<file:connection workingDir="/Users/ssalim/AnypointStudio4/MasterDemo/largepayload/output" />
+	</file:config>
+	<flow name="largepayloadFlow1" doc:id="4246f68c-de41-40c2-8bad-fb0fdb990e7d" >
+		<scatter-gather doc:name="Scatter-Gather" doc:id="e638d00f-db3c-4b9f-a44f-32226c23ac19" >
+			<route >
+				<flow-ref doc:name="Flow Reference" doc:id="8d0b91ee-9df0-4b1d-9603-838f4ec015b3" name="largepayloadFlow" />
+			</route>
+			<route >
+				<flow-ref doc:name="Flow Reference" doc:id="4346fc3a-1c9b-4302-8ab1-486a7f70c8db" name="Copy_of_largepayloadFlow"/>
+			</route>
+		</scatter-gather>
+		<logger level="INFO" doc:name="Logger" doc:id="5309dfe0-5fe6-43c0-b593-802ebeb80ddf" message='"Splitter COmpleted"'/>
+	</flow>
+	<flow name="largepayloadFlow" doc:id="e0aa723f-189c-476e-a701-0a555988289c" >
+		<http:listener doc:name="Listener" doc:id="81535c62-bb3d-43cf-8c21-f6ea8e5ffbd3" config-ref="HTTP_Listener_config" path="/" />
+		<set-variable value="0" doc:name="Set Variable" doc:id="20f46d97-c3ce-41c7-8175-66936cedae87" variableName="Size" />
+		<set-variable value="#[[]]" doc:name="Set Variable" doc:id="659cfc5f-f1f4-4fd7-ad54-f32d69cc0ace" variableName="CollectionPayload" mimeType="application/java" />
+		<db:select doc:id="b316becf-485c-423e-a436-338e058cd355" config-ref="Database_Config">
+			<db:sql >select  * from Input;</db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="c1af5ba9-549a-44ba-ae12-255f9a887250">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+
+---
+payload as Iterator
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="30d54780-f3ff-4717-ac53-ffbd90015bf8" message='"Starting Loop"'/>
+		<foreach doc:name="For Each" doc:id="54eeed91-2fe4-4da5-ba91-a700331fbb78" >
+			<logger level="INFO" doc:name="Logger" doc:id="c4750c69-9659-43ad-a2fa-d1a729601a9d" message='#["In Second Loop" ++ vars.counter]'/>
+			<ee:transform doc:name="Transform Message" doc:id="f63b8a01-a43d-4e9a-b98c-9851718c3304" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="StringPayload" ><![CDATA[%dw 2.0
+  output application/java
+  ---
+  write(payload, "application/json")]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<set-variable doc:name="Set Variable" doc:id="574aa14f-681d-4618-a07f-12a0aabba0a7" variableName="Size" value="#[vars.Size + sizeOf(vars.StringPayload)]"/>
+			<choice doc:name="Choice" doc:id="3852a0f9-7118-49c0-808f-66918766f6e3" >
+				<when expression="#[vars.Size &gt; 1000000]">
+					<ee:transform doc:name="Transform Message" doc:id="5585d001-0fdc-44fc-9b78-5bbb6bfbef46">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+vars.CollectionPayload]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					<file:write doc:name="Write" doc:id="d18bcb29-42b2-4086-838b-c27e5e219817" config-ref="File_Config" path='#["Salesforce Chunch Number " ++ vars.counter as String ++ ".json"]'>
+					</file:write>
+					<set-variable value="#[sizeOf(vars.StringPayload)]" doc:name="Reset Size" doc:id="d011fc12-a487-465a-80cb-975e010afa1b" variableName="Size"/>
+					<set-variable value="#[[]]" doc:name="Reset Collection" doc:id="6db13f1e-7406-4e61-b981-c7ea6ed0d355" variableName="CollectionPayload" mimeType="application/java" />
+					<ee:transform doc:name="Copy_of_Transform Message" doc:id="80f4651a-c138-4a01-a7e6-fbf7a28ffec5">
+						<ee:message />
+						<ee:variables>
+							<ee:set-variable variableName="CollectionPayload"><![CDATA[%dw 2.0
+output application/java
+---
+vars.CollectionPayload]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</when>
+				<otherwise >
+					<ee:transform doc:name="Transform Message" doc:id="31bf1ce3-c367-4b5f-9e3e-82c911932581">
+				<ee:message>
+				</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="CollectionPayload" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.CollectionPayload ++ [payload]]]></ee:set-variable>
+						</ee:variables>
+			</ee:transform>
+				</otherwise>
+			</choice>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="f252fac8-1ae9-4b4d-98ad-d795d27d2036" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Message: "all processed"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="Copy_of_largepayloadFlow" doc:id="3da387df-51bb-49ba-a4f7-0e55f073899c" >
+		<set-variable value="0" doc:name="Copy_of_Set Variable" doc:id="27280773-f6b9-4940-98c9-9f128639f757" variableName="Size1" />
+		<set-variable value="#[[]]" doc:name="Copy_of_Set Variable" doc:id="51e44324-5ba2-4e41-bf9c-195ec4c79bff" variableName="CollectionPayload1" mimeType="application/java" />
+		<db:select doc:name="Copy_of_Select" doc:id="cb537d1e-9dde-4858-b15f-164c4ca9b6c9" config-ref="Database_Config" >
+			<db:sql >select  * from Input where idInput&gt;50000; ;</db:sql>
+		</db:select>
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="92584cce-0912-4f60-8bcd-c38e9f72255d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+
+---
+payload as Iterator
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Copy_of_Logger" doc:id="932f7df9-8b2d-4cfd-86ed-b247910309a7" message='"Starting Loop"' />
+		<foreach doc:name="Copy_of_For Each" doc:id="de7a98d6-856d-4d42-9371-d6001d46520d" counterVariableName="counter1">
+			<logger level="INFO" doc:name="Copy_of_Logger" doc:id="a7f3793f-9ec2-4415-a749-8791817d3750" message='#["In First Loop" ++ vars.counter1]' />
+			<ee:transform doc:name="Copy_of_Transform Message" doc:id="6385e91a-eefb-4a7f-a142-64e344ce13fb" >
+				<ee:message />
+				<ee:variables >
+					<ee:set-variable variableName="StringPayload1" ><![CDATA[%dw 2.0
+  output application/java
+  ---
+  write(payload, "application/json")]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<set-variable value="#[vars.Size1 + sizeOf(vars.StringPayload1)]" doc:name="Copy_of_Set Variable" doc:id="4bcd1a92-bc51-44b7-ad64-6b09a885fdd5" variableName="Size1" />
+			<choice doc:name="Copy_of_Choice" doc:id="ad693cb6-8e32-4cbc-ab72-adcce78f8527" >
+				<when expression="#[vars.Size1 &gt; 1000000]" >
+					<ee:transform doc:name="Copy_of_Transform Message" doc:id="391ab4f2-89ab-4d65-badb-fba8e7c2e60e">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+vars.CollectionPayload1]]></ee:set-payload>
+							</ee:message>
+							<ee:variables>
+								<ee:set-variable variableName="CollectionPayload"><![CDATA[%dw 2.0
+output application/json
+---
+vars.CollectionPayload]]></ee:set-variable>
+							</ee:variables>
+						</ee:transform>
+					<file:write doc:name="Copy_of_Write" doc:id="b01ab307-38c0-4e83-8df5-d60cd6d92920" config-ref="File_Config" path='#["first loop" ++ vars.counter1 as String ++ ".json"]'>
+							<file:content><![CDATA[#[vars.CollectionPayload1]]]></file:content>
+						</file:write>
+					<set-variable value="#[sizeOf(vars.StringPayload1)]" doc:name="Copy_of_Reset Size" doc:id="80f59ddd-91d4-43eb-8a49-b3db502350d6" variableName="Size1" />
+					<set-variable value="#[[]]" doc:name="Copy_of_Reset Collection" doc:id="3d68f45b-4297-417e-80b4-751f024be8e2" variableName="CollectionPayload1" mimeType="application/java" />
+					<ee:transform doc:name="Copy_of_Copy_of_Transform Message" doc:id="4d631cf4-0493-4d6d-95ff-af3e13a13704" >
+						<ee:message />
+						<ee:variables >
+							<ee:set-variable variableName="CollectionPayload1" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.CollectionPayload1 ++ [payload]]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</when>
+				<otherwise >
+					<ee:transform doc:name="Copy_of_Transform Message" doc:id="048131e9-ee48-4e77-8cb9-775a183eb20a" >
+						<ee:message />
+						<ee:variables >
+							<ee:set-variable variableName="CollectionPayload1" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.CollectionPayload1 ++ [payload]]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</otherwise>
+			</choice>
+		</foreach>
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="d8c1bf34-3bf0-440d-8b7e-6a0e862cda0f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Message: "all processed"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

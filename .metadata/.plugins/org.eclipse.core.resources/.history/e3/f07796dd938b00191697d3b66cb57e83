@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators" xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="d97fa429-46e6-4012-9303-80717785f616" >
+		<db:my-sql-connection host="localhost" port="3306" user="banking" password="Banking#1" database="mydb" >
+			<db:connection-properties >
+				<db:connection-property key="serverTimezone" value="UTC" />
+			</db:connection-properties>
+		</db:my-sql-connection>
+	</db:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b871b44b-6a26-448c-b8ae-4e36317443d1" basePath="/">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="2e4712ab-6533-40a2-a633-15e0dd02d2c2" >
+		<file:connection workingDir="/u01/tmp/mule" />
+	</file:config>
+	<file:config name="File_Config1" doc:name="File Config" doc:id="f83ff643-805f-4ffd-a450-1e201e2aee7a" >
+		<file:connection workingDir="/u01/tmp/mule" />
+	</file:config>
+	<file:config name="File_Config2" doc:name="File Config" doc:id="feaddf04-76d2-488c-8d70-0210d09705b1" >
+		<file:connection workingDir="/u01/tmp/exceptions" />
+	</file:config>
+	<flow name="mule4testbatchFlow" doc:id="96616e73-2f27-4872-a7dc-ef6f46da7d26" >
+		<http:listener doc:name="Listener" doc:id="d9224fc6-949f-4b12-b489-54836f514958" config-ref="HTTP_Listener_config" path="/batch">
+			<http:response >
+				<http:body ><![CDATA[#['OK']]]></http:body>
+			</http:response>
+		</http:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="9c3a9abe-44fa-4eaf-b362-332e6e8d59e7" message="#[['starting batch: ' ++ now() as String]]"/>
+		<db:select doc:id="de708ab5-218f-40de-9911-1f3f76fe4100" config-ref="Database_Config" fetchSize="1000">
+						<db:sql>select id, name, pick, notes, last_update from mydb.Courses where id &lt; 29000</db:sql>
+					</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="39e85d10-9b2f-4a9a-8a41-2411e006090a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload as Iterator
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="mule4testbatchBatch_Job" doc:id="6e5718e4-e16a-4178-a190-12c9ef865df9">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="42048691-391a-4317-bf08-f4b2e7f498c4" >
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="79c8010a-966e-4a01-9052-878ff8e2f67d" size="20000">
+						<logger level="INFO" doc:name="Logger" doc:id="a565894d-9e7a-4c8b-a5ed-12ad3a36cf70" message="'starting a batch aggregator .....'" />
+						<ee:transform doc:name="Transform Message" doc:id="46fefaaf-ddea-4a3d-a884-bfcd663d07fa">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/csv
+var newpick = (data) -> data match {
+    case 1 -> "Ready"
+    case 2 -> "NotReady"
+    else -> "OTHER"
+    }
+
+---
+payload map (item, index) -> {
+		"id": item.id,
+		"status": newpick(item.pick),
+		"name": item.name,
+		"notes": item.notes,
+		"last_update": item.last_update
+}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<ee:transform doc:name="Transform Message" doc:id="ac032904-3f4c-46d7-85c6-77da8ddb6524" >
+							<ee:message >
+							</ee:message>
+							<ee:variables >
+								<ee:set-variable variableName="StringPayload" ><![CDATA[%dw 2.0
+  output application/java
+  ---
+  write(payload, "application/json")]]></ee:set-variable>
+							</ee:variables>
+						</ee:transform>
+						<set-variable value="#[sizeOf(vars.StringPayload)]" doc:name="Set Variable" doc:id="268171dd-0f8a-486c-a783-f5281dedd404" variableName="Size"/>
+						<logger level="INFO" doc:name="Logger" doc:id="6e92891c-a979-4896-90ae-58c7265c88ee" message="#['Size is: ' ++ vars.Size]" />
+						<choice doc:name="Choice" doc:id="4acd1287-b34b-4770-bbbb-0f6ba4304806" >
+							<when expression="#[vars.Size &lt; 1740000]">
+								<set-variable value='#[output application/java 
+ ---  "file_" ++ (now()) as String ++ ".csv"]' doc:name="Set File Name" doc:id="e0e864f4-c2d7-4a6e-a385-33467673c722" variableName="myfilename" />
+								<file:write doc:name="Write" doc:id="e034b7ff-5bea-410c-9271-259feb47dbf7" path="#[vars.myfilename]" config-ref="File_Config1" />
+								<logger level="INFO" doc:name="Logger" doc:id="b896db76-23fd-4e33-8549-431924f1b332" message="'wrote file ...'"/>
+							</when>
+							<otherwise>
+								<set-variable value="#[0]" doc:name="Set Variable" doc:id="8c91a624-77d9-475d-80a7-20c4d92c3610" variableName="ExceptionCounter"/>
+								<ee:transform doc:name="Transform Message" doc:id="72b86d11-7990-4197-8e7b-ea1e5c5ea2ac">
+									<ee:message>
+									</ee:message>
+									<ee:variables >
+										<ee:set-variable variableName="numrecords" ><![CDATA[%dw 2.0
+output application/json
+---
+sizeOf(vars.records)]]></ee:set-variable>
+									</ee:variables>
+								</ee:transform>
+								<logger level="INFO" doc:name="Logger" doc:id="23874d6c-d3ee-4d67-96f6-6389ff07345d" message="#['Number of records is: ' ++ vars.numrecords as String]"/>
+								  
+								<set-variable value="0" doc:name="Set Variable" doc:id="3f4642c3-f4f4-4c60-b625-2f8ef38903a6" variableName="SmallSize" />
+								<set-variable value="#[[]]" doc:name="Set Variable" doc:id="52cd33a9-a51f-44b3-ab84-db3c1d4f8672" variableName="myCollection" />
+								<foreach doc:name="For Each" doc:id="42c29f9a-edbb-414a-a259-1f8fd16c19ac" collection="vars.records">
+<choice doc:name="Counter Value check">
+        <when expression="#[vars.numrecords &gt;1]">
+            <set-variable variableName="numrecords" value="#[vars.numrecords - 1]" doc:name="numrecords deduction"/>
+											<logger level="INFO" doc:name="Logger" doc:id="200633b1-758f-41e8-826a-67e1f3c1a4ca" message="#['the number of records remaining is ...' ++ vars.numrecords as String]"/>
+        </when>
+        <otherwise>
+            <logger message="The loop breaks" level="INFO" doc:name="The loop breaks"/>
+        </otherwise>
+    </choice>
+									
+								</foreach>
+							</otherwise>
+						</choice>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="fc2df740-7440-4442-a3f2-4ed5fa86ff8a" message="'batch job complete.'"/>
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+</mule>

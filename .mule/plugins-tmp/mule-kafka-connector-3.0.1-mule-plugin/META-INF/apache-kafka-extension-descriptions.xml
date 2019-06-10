@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension-documentation>
+    <configs>
+        <config name="kafka-consumer-config">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="expirationPolicy">
+                    <description><![CDATA[Configures the minimum amount of time that a dynamic configuration instance can remain idle before the runtime considers it eligible for expiration. This does not mean that the platform will expire the instance at the exact moment that it becomes eligible. The runtime will actually purge the instances when it sees it fit.]]></description>
+                </parameter>
+            </parameters>
+        </config>
+        <config name="kafka-producer-config">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="expirationPolicy">
+                    <description><![CDATA[Configures the minimum amount of time that a dynamic configuration instance can remain idle before the runtime considers it eligible for expiration. This does not mean that the platform will expire the instance at the exact moment that it becomes eligible. The runtime will actually purge the instances when it sees it fit.]]></description>
+                </parameter>
+            </parameters>
+        </config>
+    </configs>
+    <connections>
+        <connection name="basic-kafka-consumer-connection">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="consumerPartitions">
+                    <description><![CDATA[The number of partitions to be used for the consumer]]></description>
+                </parameter>
+                <parameter name="groupId">
+                    <description><![CDATA[A unique string that identifies the consumer group this consumer belongs to.]]></description>
+                </parameter>
+                <parameter name="bootstrapServers">
+                    <description><![CDATA[Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.]]></description>
+                </parameter>
+                <parameter name="additionalProperties">
+                    <description><![CDATA[Additional properties as key->value that you need for your connection.]]></description>
+                </parameter>
+                <parameter name="reconnection">
+                    <description><![CDATA[When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy]]></description>
+                </parameter>
+            </parameters>
+        </connection>
+        <connection name="kerberos-kafka-consumer-connection">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="consumerPartitions">
+                    <description><![CDATA[The number of partitions to be used for the consumer]]></description>
+                </parameter>
+                <parameter name="groupId">
+                    <description><![CDATA[A unique string that identifies the consumer group this consumer belongs to.]]></description>
+                </parameter>
+                <parameter name="bootstrapServers">
+                    <description><![CDATA[Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.]]></description>
+                </parameter>
+                <parameter name="additionalProperties">
+                    <description><![CDATA[Additional properties as key->value that you need for your connection.]]></description>
+                </parameter>
+                <parameter name="reconnection">
+                    <description><![CDATA[When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy]]></description>
+                </parameter>
+                <parameter name="kerberosConfigFile">
+                    <description><![CDATA[Kerberos configuration file. The essential Kerberos configuration information is the default realm and the default KDC.]]></description>
+                </parameter>
+                <parameter name="principal">
+                    <description><![CDATA[Kerberos principal]]></description>
+                </parameter>
+                <parameter name="keytab">
+                    <description><![CDATA[Path to keytab file associated with "principal".]]></description>
+                </parameter>
+                <parameter name="serviceName">
+                    <description><![CDATA[The Kerberos principal name that Kafka Broker runs as.]]></description>
+                </parameter>
+                <parameter name="additionalJAASProperties">
+                    <description><![CDATA[Additional parperties as key->value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.]]></description>
+                </parameter>
+            </parameters>
+        </connection>
+        <connection name="kerberos-ssl-kafka-consumer-connection">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="consumerPartitions">
+                    <description><![CDATA[The number of partitions to be used for the consumer]]></description>
+                </parameter>
+                <parameter name="groupId">
+                    <description><![CDATA[A unique string that identifies the consumer group this consumer belongs to.]]></description>
+                </parameter>
+                <parameter name="bootstrapServers">
+                    <description><![CDATA[Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.]]></description>
+                </parameter>
+                <parameter name="additionalProperties">
+                    <description><![CDATA[Additional properties as key->value that you need for your connection.]]></description>
+                </parameter>
+                <parameter name="reconnection">
+                    <description><![CDATA[When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy]]></description>
+                </parameter>
+                <parameter name="keyStoreType">
+                    <description><![CDATA[The file format of the key store file. This is optional for client.]]></description>
+                </parameter>
+                <parameter name="keyStorePassword">
+                    <description><![CDATA[The store password for the key store file. This is optional for client and only needed if "keyStoreLocation" is configured.]]></description>
+                </parameter>
+                <parameter name="keyStoreLocation">
+                    <description><![CDATA[The location of the key store file. This is optional for client and can be used for two-way authentication for client.]]></description>
+                </parameter>
+                <parameter name="trustStoreType">
+                    <description><![CDATA[The file format of the trust store file.]]></description>
+                </parameter>
+                <parameter name="trustStorePassword">
+                    <description><![CDATA[The password for the trust store file. If a password is not set access to the truststore is still available, but integrity checking is disabled.]]></description>
+                </parameter>
+                <parameter name="trustStoreLocation">
+                    <description><![CDATA[The location of the trust store file.]]></description>
+                </parameter>
+                <parameter name="kerberosConfigFile">
+                    <description><![CDATA[Kerberos configuration file. The essential Kerberos configuration information is the default realm and the default KDC.]]></description>
+                </parameter>
+                <parameter name="principal">
+                    <description><![CDATA[Kerberos principal]]></description>
+                </parameter>
+                <parameter name="keytab">
+                    <description><![CDATA[Path to keytab file associated with "principal".]]></description>
+                </parameter>
+                <parameter name="serviceName">
+                    <description><![CDATA[The Kerberos principal name that Kafka Broker runs as.]]></description>
+                </parameter>
+                <parameter name="additionalJAASProperties">
+                    <description><![CDATA[Additional parperties as key->value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.]]></description>
+                </parameter>
+            </parameters>
+        </connection>
+        <connection name="ssl-kafka-consumer-connection">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="consumerPartitions">
+                    <description><![CDATA[The number of partitions to be used for the consumer]]></description>
+                </parameter>
+                <parameter name="groupId">
+                    <description><![CDATA[A unique string that identifies the consumer group this consumer belongs to.]]></description>
+                </parameter>
+                <parameter name="bootstrapServers">
+                    <description><![CDATA[Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.]]></description>
+                </parameter>
+                <parameter name="additionalProperties">
+                    <description><![CDATA[Additional properties as key->value that you need for your connection.]]></description>
+                </parameter>
+                <parameter name="reconnection">
+                    <description><![CDATA[When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy]]></description>
+                </parameter>
+                <parameter name="keyStoreType">
+                    <description><![CDATA[The file format of the key store file. This is optional for client.]]></description>
+                </parameter>
+                <parameter name="keyStorePassword">
+                    <description><![CDATA[The store password for the key store file. This is optional for client and only needed if "keyStoreLocation" is configured.]]></description>
+                </parameter>
+                <parameter name="keyStoreLocation">
+                    <description><![CDATA[The location of the key store file. This is optional for client and can be used for two-way authentication for client.]]></description>
+                </parameter>
+                <parameter name="trustStoreType">
+                    <description><![CDATA[The file format of the trust store file.]]></description>
+                </parameter>
+                <parameter name="trustStorePassword">
+                    <description><![CDATA[The password for the trust store file. If a password is not set access to the truststore is still available, but integrity checking is disabled.]]></description>
+                </parameter>
+                <parameter name="trustStoreLocation">
+                    <description><![CDATA[The location of the trust store file.]]></description>
+                </parameter>
+            </parameters>
+        </connection>
+        <connection name="basic-kafka-producer-connection">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="bootstrapServers">
+                    <description><![CDATA[Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.]]></description>
+                </parameter>
+                <parameter name="additionalProperties">
+                    <description><![CDATA[Additional properties as key->value that you need for your connection.]]></description>
+                </parameter>
+                <parameter name="reconnection">
+                    <description><![CDATA[When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy]]></description>
+                </parameter>
+            </parameters>
+        </connection>
+        <connection name="kerberos-kafka-producer-connection">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="bootstrapServers">
+                    <description><![CDATA[Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.]]></description>
+                </parameter>
+                <parameter name="additionalProperties">
+                    <description><![CDATA[Additional properties as key->value that you need for your connection.]]></description>
+                </parameter>
+                <parameter name="reconnection">
+                    <description><![CDATA[When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy]]></description>
+                </parameter>
+                <parameter name="kerberosConfigFile">
+                    <description><![CDATA[Kerberos configuration file. The essential Kerberos configuration information is the default realm and the default KDC.]]></description>
+                </parameter>
+                <parameter name="principal">
+                    <description><![CDATA[Kerberos principal]]></description>
+                </parameter>
+                <parameter name="keytab">
+                    <description><![CDATA[Path to keytab file associated with "principal".]]></description>
+                </parameter>
+                <parameter name="serviceName">
+                    <description><![CDATA[The Kerberos principal name that Kafka Broker runs as.]]></description>
+                </parameter>
+                <parameter name="additionalJAASProperties">
+                    <description><![CDATA[Additional parperties as key->value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.]]></description>
+                </parameter>
+            </parameters>
+        </connection>
+        <connection name="kerberos-ssl-kafka-producer-connection">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="bootstrapServers">
+                    <description><![CDATA[Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.]]></description>
+                </parameter>
+                <parameter name="additionalProperties">
+                    <description><![CDATA[Additional properties as key->value that you need for your connection.]]></description>
+                </parameter>
+                <parameter name="reconnection">
+                    <description><![CDATA[When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy]]></description>
+                </parameter>
+                <parameter name="keyStoreType">
+                    <description><![CDATA[The file format of the key store file. This is optional for client.]]></description>
+                </parameter>
+                <parameter name="keyStorePassword">
+                    <description><![CDATA[The store password for the key store file. This is optional for client and only needed if "keyStoreLocation" is configured.]]></description>
+                </parameter>
+                <parameter name="keyStoreLocation">
+                    <description><![CDATA[The location of the key store file. This is optional for client and can be used for two-way authentication for client.]]></description>
+                </parameter>
+                <parameter name="trustStoreType">
+                    <description><![CDATA[The file format of the trust store file.]]></description>
+                </parameter>
+                <parameter name="trustStorePassword">
+                    <description><![CDATA[The password for the trust store file. If a password is not set access to the truststore is still available, but integrity checking is disabled.]]></description>
+                </parameter>
+                <parameter name="trustStoreLocation">
+                    <description><![CDATA[The location of the trust store file.]]></description>
+                </parameter>
+                <parameter name="kerberosConfigFile">
+                    <description><![CDATA[Kerberos configuration file. The essential Kerberos configuration information is the default realm and the default KDC.]]></description>
+                </parameter>
+                <parameter name="principal">
+                    <description><![CDATA[Kerberos principal]]></description>
+                </parameter>
+                <parameter name="keytab">
+                    <description><![CDATA[Path to keytab file associated with "principal".]]></description>
+                </parameter>
+                <parameter name="serviceName">
+                    <description><![CDATA[The Kerberos principal name that Kafka Broker runs as.]]></description>
+                </parameter>
+                <parameter name="additionalJAASProperties">
+                    <description><![CDATA[Additional parperties as key->value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.]]></description>
+                </parameter>
+            </parameters>
+        </connection>
+        <connection name="ssl-kafka-producer-connection">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="bootstrapServers">
+                    <description><![CDATA[Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.]]></description>
+                </parameter>
+                <parameter name="additionalProperties">
+                    <description><![CDATA[Additional properties as key->value that you need for your connection.]]></description>
+                </parameter>
+                <parameter name="reconnection">
+                    <description><![CDATA[When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy]]></description>
+                </parameter>
+                <parameter name="keyStoreType">
+                    <description><![CDATA[The file format of the key store file. This is optional for client.]]></description>
+                </parameter>
+                <parameter name="keyStorePassword">
+                    <description><![CDATA[The store password for the key store file. This is optional for client and only needed if "keyStoreLocation" is configured.]]></description>
+                </parameter>
+                <parameter name="keyStoreLocation">
+                    <description><![CDATA[The location of the key store file. This is optional for client and can be used for two-way authentication for client.]]></description>
+                </parameter>
+                <parameter name="trustStoreType">
+                    <description><![CDATA[The file format of the trust store file.]]></description>
+                </parameter>
+                <parameter name="trustStorePassword">
+                    <description><![CDATA[The password for the trust store file. If a password is not set access to the truststore is still available, but integrity checking is disabled.]]></description>
+                </parameter>
+                <parameter name="trustStoreLocation">
+                    <description><![CDATA[The location of the trust store file.]]></description>
+                </parameter>
+            </parameters>
+        </connection>
+    </connections>
+    <extension name="Apache Kafka">
+        <description><![CDATA[]]></description>
+        <parameters/>
+    </extension>
+    <operations>
+        <operation name="producer">
+            <description><![CDATA[Sends messages to a Kafka topic.]]></description>
+            <parameters>
+                <parameter name="topic">
+                    <description><![CDATA[Topic to send the message to]]></description>
+                </parameter>
+                <parameter name="key">
+                    <description><![CDATA[Key belonging to the message that is going to be sent]]></description>
+                </parameter>
+                <parameter name="message">
+                    <description><![CDATA[Message to be sent]]></description>
+                </parameter>
+                <parameter name="reconnectionStrategy">
+                    <description><![CDATA[A retry strategy in case of connectivity errors]]></description>
+                </parameter>
+            </parameters>
+        </operation>
+    </operations>
+    <sources>
+        <source name="consumer">
+            <description><![CDATA[Source that consumes messages from a given topic.]]></description>
+            <parameters>
+                <parameter name="topic">
+                    <description><![CDATA[Name of the topic to consume messages from.]]></description>
+                </parameter>
+                <parameter name="partitionOffsets">
+                    <description><![CDATA[Map representing partitions offsets configuration. It has to be in the following format [{"partition_number": "partition_offset"}] (e.g: [{"0":"2"}, [{"1":"5"}]]).]]></description>
+                </parameter>
+                <parameter name="redeliveryPolicy">
+                    <description><![CDATA[Defines a policy for processing the redelivery of the same message]]></description>
+                </parameter>
+                <parameter name="streamingStrategy">
+                    <description><![CDATA[Configure if repeatable streams should be used and their behaviour]]></description>
+                </parameter>
+                <parameter name="reconnectionStrategy">
+                    <description><![CDATA[A retry strategy in case of connectivity errors]]></description>
+                </parameter>
+            </parameters>
+        </source>
+    </sources>
+</extension-documentation>

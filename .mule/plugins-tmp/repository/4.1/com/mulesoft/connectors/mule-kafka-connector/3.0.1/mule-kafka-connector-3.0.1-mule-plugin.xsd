@@ -1,0 +1,737 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:mule="http://www.mulesoft.org/schema/mule/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.mulesoft.org/schema/mule/kafka" attributeFormDefault="unqualified" elementFormDefault="qualified">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace"></xs:import>
+  <xs:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"></xs:import>
+  <xs:import namespace="http://www.mulesoft.org/schema/mule/core" schemaLocation="http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></xs:import>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstract-shared-extension" name="kafka-consumer-config">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractExtensionType">
+          <xs:sequence minOccurs="1" maxOccurs="1">
+            <xs:element minOccurs="1" maxOccurs="1" ref="mule:abstractConnectionProvider"></xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" ref="mule:expiration-policy"></xs:element>
+          </xs:sequence>
+          <xs:attribute type="xs:string" use="required" name="name"></xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstractConnectionProvider" name="basic-kafka-consumer-connection">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractConnectionProviderType">
+          <xs:sequence minOccurs="0" maxOccurs="1">
+            <xs:element minOccurs="0" maxOccurs="1" ref="mule:reconnection"></xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-properties">
+              <xs:annotation>
+                <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="mule:expressionInt" use="optional" default="1" name="consumerPartitions">
+            <xs:annotation>
+              <xs:documentation>The number of partitions to be used for the consumer</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="groupId">
+            <xs:annotation>
+              <xs:documentation>A unique string that identifies the consumer group this consumer belongs to.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="bootstrapServers">
+            <xs:annotation>
+              <xs:documentation>Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalProperties">
+            <xs:annotation>
+              <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstractConnectionProvider" name="kerberos-kafka-consumer-connection">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractConnectionProviderType">
+          <xs:sequence minOccurs="0" maxOccurs="1">
+            <xs:element minOccurs="0" maxOccurs="1" ref="mule:reconnection"></xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-properties">
+              <xs:annotation>
+                <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-jaas-properties">
+              <xs:annotation>
+                <xs:documentation>Additional parperties as key-&gt;value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-jaas-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="mule:expressionInt" use="optional" default="1" name="consumerPartitions">
+            <xs:annotation>
+              <xs:documentation>The number of partitions to be used for the consumer</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="groupId">
+            <xs:annotation>
+              <xs:documentation>A unique string that identifies the consumer group this consumer belongs to.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="bootstrapServers">
+            <xs:annotation>
+              <xs:documentation>Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalProperties">
+            <xs:annotation>
+              <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="kerberosConfigFile">
+            <xs:annotation>
+              <xs:documentation>Kerberos configuration file. The essential Kerberos configuration information is the default realm and the default KDC.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="principal">
+            <xs:annotation>
+              <xs:documentation>Kerberos principal</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="keytab">
+            <xs:annotation>
+              <xs:documentation>Path to keytab file associated with "principal".</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="serviceName">
+            <xs:annotation>
+              <xs:documentation>The Kerberos principal name that Kafka Broker runs as.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalJAASProperties">
+            <xs:annotation>
+              <xs:documentation>Additional parperties as key-&gt;value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstractConnectionProvider" name="kerberos-ssl-kafka-consumer-connection">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractConnectionProviderType">
+          <xs:sequence minOccurs="0" maxOccurs="1">
+            <xs:element minOccurs="0" maxOccurs="1" ref="mule:reconnection"></xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-properties">
+              <xs:annotation>
+                <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-jaas-properties">
+              <xs:annotation>
+                <xs:documentation>Additional parperties as key-&gt;value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-jaas-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="mule:expressionInt" use="optional" default="1" name="consumerPartitions">
+            <xs:annotation>
+              <xs:documentation>The number of partitions to be used for the consumer</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="groupId">
+            <xs:annotation>
+              <xs:documentation>A unique string that identifies the consumer group this consumer belongs to.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="bootstrapServers">
+            <xs:annotation>
+              <xs:documentation>Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalProperties">
+            <xs:annotation>
+              <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" default="JKS" name="keyStoreType">
+            <xs:annotation>
+              <xs:documentation>The file format of the key store file. This is optional for client.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="keyStorePassword">
+            <xs:annotation>
+              <xs:documentation>The store password for the key store file. This is optional for client and only needed if "keyStoreLocation" is configured.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="keyStoreLocation">
+            <xs:annotation>
+              <xs:documentation>The location of the key store file. This is optional for client and can be used for two-way authentication for client.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" default="JKS" name="trustStoreType">
+            <xs:annotation>
+              <xs:documentation>The file format of the trust store file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="trustStorePassword">
+            <xs:annotation>
+              <xs:documentation>The password for the trust store file. If a password is not set access to the truststore is still available, but integrity checking is disabled.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="trustStoreLocation">
+            <xs:annotation>
+              <xs:documentation>The location of the trust store file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="kerberosConfigFile">
+            <xs:annotation>
+              <xs:documentation>Kerberos configuration file. The essential Kerberos configuration information is the default realm and the default KDC.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="principal">
+            <xs:annotation>
+              <xs:documentation>Kerberos principal</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="keytab">
+            <xs:annotation>
+              <xs:documentation>Path to keytab file associated with "principal".</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="serviceName">
+            <xs:annotation>
+              <xs:documentation>The Kerberos principal name that Kafka Broker runs as.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalJAASProperties">
+            <xs:annotation>
+              <xs:documentation>Additional parperties as key-&gt;value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstractConnectionProvider" name="ssl-kafka-consumer-connection">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractConnectionProviderType">
+          <xs:sequence minOccurs="0" maxOccurs="1">
+            <xs:element minOccurs="0" maxOccurs="1" ref="mule:reconnection"></xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-properties">
+              <xs:annotation>
+                <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="mule:expressionInt" use="optional" default="1" name="consumerPartitions">
+            <xs:annotation>
+              <xs:documentation>The number of partitions to be used for the consumer</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="groupId">
+            <xs:annotation>
+              <xs:documentation>A unique string that identifies the consumer group this consumer belongs to.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="bootstrapServers">
+            <xs:annotation>
+              <xs:documentation>Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalProperties">
+            <xs:annotation>
+              <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" default="JKS" name="keyStoreType">
+            <xs:annotation>
+              <xs:documentation>The file format of the key store file. This is optional for client.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="keyStorePassword">
+            <xs:annotation>
+              <xs:documentation>The store password for the key store file. This is optional for client and only needed if "keyStoreLocation" is configured.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="keyStoreLocation">
+            <xs:annotation>
+              <xs:documentation>The location of the key store file. This is optional for client and can be used for two-way authentication for client.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" default="JKS" name="trustStoreType">
+            <xs:annotation>
+              <xs:documentation>The file format of the trust store file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="trustStorePassword">
+            <xs:annotation>
+              <xs:documentation>The password for the trust store file. If a password is not set access to the truststore is still available, but integrity checking is disabled.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="trustStoreLocation">
+            <xs:annotation>
+              <xs:documentation>The location of the trust store file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/kafka" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="ConsumerType" substitutionGroup="mule:abstract-message-source" name="consumer">
+    <xs:annotation>
+      <xs:documentation>Source that consumes messages from a given topic.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="ConsumerType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageSourceType">
+        <xs:sequence minOccurs="0" maxOccurs="1">
+          <xs:element minOccurs="0" maxOccurs="1" ref="mule:abstract-redelivery-policy"></xs:element>
+          <xs:element minOccurs="0" maxOccurs="1" ref="mule:abstract-byte-streaming-strategy"></xs:element>
+          <xs:element minOccurs="0" maxOccurs="1" ref="mule:abstract-reconnection-strategy"></xs:element>
+          <xs:element minOccurs="0" maxOccurs="1" name="partition-offsets">
+            <xs:annotation>
+              <xs:documentation>Map representing partitions offsets configuration. It has to be in the following format [{"partition_number": "partition_offset"}] (e.g: [{"0":"2"}, [{"1":"5"}]]).</xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" minOccurs="0" maxOccurs="unbounded" ref="kafka:abstract-offset"></xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute type="mule:substitutableName" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="topic">
+          <xs:annotation>
+            <xs:documentation>Name of the topic to consume messages from.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="mule:substitutableName" use="optional" name="partitionOffsets">
+          <xs:annotation>
+            <xs:documentation>Map representing partitions offsets configuration. It has to be in the following format [{"partition_number": "partition_offset"}] (e.g: [{"0":"2"}, [{"1":"5"}]]).</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="mule:substitutableBoolean" use="optional" name="primaryNodeOnly">
+          <xs:annotation>
+            <xs:documentation>Whether this source should only be executed on the primary node when runnning in Cluster</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="com.mulesoft.connectors.kafka.api.Offset">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractExtensionType">
+        <xs:attribute type="mule:expressionString" use="optional" name="partitionNumber"></xs:attribute>
+        <xs:attribute type="mule:expressionString" use="optional" name="partitionOffset"></xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" type="kafka:com.mulesoft.connectors.kafka.api.Offset" abstract="true" name="abstract-offset"></xs:element>
+  <xs:element xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" substitutionGroup="kafka:abstract-offset" name="offset">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="kafka:com.mulesoft.connectors.kafka.api.Offset"></xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstract-shared-extension" name="kafka-producer-config">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractExtensionType">
+          <xs:sequence minOccurs="1" maxOccurs="1">
+            <xs:element minOccurs="1" maxOccurs="1" ref="mule:abstractConnectionProvider"></xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" ref="mule:expiration-policy"></xs:element>
+          </xs:sequence>
+          <xs:attribute type="xs:string" use="required" name="name"></xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstractConnectionProvider" name="basic-kafka-producer-connection">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractConnectionProviderType">
+          <xs:sequence minOccurs="0" maxOccurs="1">
+            <xs:element minOccurs="0" maxOccurs="1" ref="mule:reconnection"></xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-properties">
+              <xs:annotation>
+                <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="mule:expressionString" use="required" name="bootstrapServers">
+            <xs:annotation>
+              <xs:documentation>Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalProperties">
+            <xs:annotation>
+              <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstractConnectionProvider" name="kerberos-kafka-producer-connection">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractConnectionProviderType">
+          <xs:sequence minOccurs="0" maxOccurs="1">
+            <xs:element minOccurs="0" maxOccurs="1" ref="mule:reconnection"></xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-properties">
+              <xs:annotation>
+                <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-jaas-properties">
+              <xs:annotation>
+                <xs:documentation>Additional parperties as key-&gt;value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-jaas-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="mule:expressionString" use="required" name="bootstrapServers">
+            <xs:annotation>
+              <xs:documentation>Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalProperties">
+            <xs:annotation>
+              <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="kerberosConfigFile">
+            <xs:annotation>
+              <xs:documentation>Kerberos configuration file. The essential Kerberos configuration information is the default realm and the default KDC.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="principal">
+            <xs:annotation>
+              <xs:documentation>Kerberos principal</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="keytab">
+            <xs:annotation>
+              <xs:documentation>Path to keytab file associated with "principal".</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="serviceName">
+            <xs:annotation>
+              <xs:documentation>The Kerberos principal name that Kafka Broker runs as.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalJAASProperties">
+            <xs:annotation>
+              <xs:documentation>Additional parperties as key-&gt;value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstractConnectionProvider" name="kerberos-ssl-kafka-producer-connection">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractConnectionProviderType">
+          <xs:sequence minOccurs="0" maxOccurs="1">
+            <xs:element minOccurs="0" maxOccurs="1" ref="mule:reconnection"></xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-properties">
+              <xs:annotation>
+                <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-jaas-properties">
+              <xs:annotation>
+                <xs:documentation>Additional parperties as key-&gt;value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-jaas-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="mule:expressionString" use="required" name="bootstrapServers">
+            <xs:annotation>
+              <xs:documentation>Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalProperties">
+            <xs:annotation>
+              <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" default="JKS" name="keyStoreType">
+            <xs:annotation>
+              <xs:documentation>The file format of the key store file. This is optional for client.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="keyStorePassword">
+            <xs:annotation>
+              <xs:documentation>The store password for the key store file. This is optional for client and only needed if "keyStoreLocation" is configured.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="keyStoreLocation">
+            <xs:annotation>
+              <xs:documentation>The location of the key store file. This is optional for client and can be used for two-way authentication for client.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" default="JKS" name="trustStoreType">
+            <xs:annotation>
+              <xs:documentation>The file format of the trust store file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="trustStorePassword">
+            <xs:annotation>
+              <xs:documentation>The password for the trust store file. If a password is not set access to the truststore is still available, but integrity checking is disabled.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="trustStoreLocation">
+            <xs:annotation>
+              <xs:documentation>The location of the trust store file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="kerberosConfigFile">
+            <xs:annotation>
+              <xs:documentation>Kerberos configuration file. The essential Kerberos configuration information is the default realm and the default KDC.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="principal">
+            <xs:annotation>
+              <xs:documentation>Kerberos principal</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="keytab">
+            <xs:annotation>
+              <xs:documentation>Path to keytab file associated with "principal".</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="serviceName">
+            <xs:annotation>
+              <xs:documentation>The Kerberos principal name that Kafka Broker runs as.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalJAASProperties">
+            <xs:annotation>
+              <xs:documentation>Additional parperties as key-&gt;value that you need to set on "sasl.jaas.config" and that you usually include in JAAS configuration file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstractConnectionProvider" name="ssl-kafka-producer-connection">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractConnectionProviderType">
+          <xs:sequence minOccurs="0" maxOccurs="1">
+            <xs:element minOccurs="0" maxOccurs="1" ref="mule:reconnection"></xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="additional-properties">
+              <xs:annotation>
+                <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" name="additional-property">
+                    <xs:complexType>
+                      <xs:attribute type="mule:expressionString" use="required" name="key"></xs:attribute>
+                      <xs:attribute type="mule:expressionString" use="required" name="value"></xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="mule:expressionString" use="required" name="bootstrapServers">
+            <xs:annotation>
+              <xs:documentation>Comma-separated host-port pairs used for establishing the initial connection to the Kafka cluster. This is the same as the "bootstrap.servers" value you must provide to Kafka clients (producer/consumer). If this property is provided with producer/consumer properties files, this value is ignored and the one from the properties file is used.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionMap" use="optional" name="additionalProperties">
+            <xs:annotation>
+              <xs:documentation>Additional properties as key-&gt;value that you need for your connection.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" default="JKS" name="keyStoreType">
+            <xs:annotation>
+              <xs:documentation>The file format of the key store file. This is optional for client.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="keyStorePassword">
+            <xs:annotation>
+              <xs:documentation>The store password for the key store file. This is optional for client and only needed if "keyStoreLocation" is configured.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" name="keyStoreLocation">
+            <xs:annotation>
+              <xs:documentation>The location of the key store file. This is optional for client and can be used for two-way authentication for client.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="optional" default="JKS" name="trustStoreType">
+            <xs:annotation>
+              <xs:documentation>The file format of the trust store file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="trustStorePassword">
+            <xs:annotation>
+              <xs:documentation>The password for the trust store file. If a password is not set access to the truststore is still available, but integrity checking is disabled.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="mule:expressionString" use="required" name="trustStoreLocation">
+            <xs:annotation>
+              <xs:documentation>The location of the trust store file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/kafka" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="ProducerType" substitutionGroup="mule:abstract-operator" name="producer">
+    <xs:annotation>
+      <xs:documentation>Sends messages to a Kafka topic.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="ProducerType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractOperatorType">
+        <xs:sequence minOccurs="0" maxOccurs="1">
+          <xs:element minOccurs="0" maxOccurs="1" ref="mule:abstract-reconnection-strategy"></xs:element>
+          <xs:element type="xs:string" minOccurs="0" maxOccurs="1" name="message">
+            <xs:annotation>
+              <xs:documentation>Message to be sent</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute type="mule:substitutableName" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="mule:expressionString" use="required" name="topic">
+          <xs:annotation>
+            <xs:documentation>Topic to send the message to</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="mule:expressionString" use="required" name="key">
+          <xs:annotation>
+            <xs:documentation>Key belonging to the message that is going to be sent</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>
